@@ -2,7 +2,10 @@ app ScrapeWasp {
   wasp: {
     version: "^0.9.0"
   },
-  title: "ScrapeWasp"
+  title: "ScrapeWasp",
+  dependencies: [
+    ("dracula-ui", "1.0.3" )
+  ]
 }
 
 route RootRoute { path: "/", to: MainPage }
