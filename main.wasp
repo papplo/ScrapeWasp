@@ -1,0 +1,31 @@
+app ScrapeWasp {
+  wasp: {
+    version: "^0.9.0"
+  },
+  title: "ScrapeWasp"
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import Main from "@client/MainPage.jsx"
+}
+
+query getTasks {
+  fn: import { getTasks } from "@server/queries.js",
+  entities: [Task]
+}
+
+action createTask {
+  fn: import { createTask } from "@server/operations.js",
+  entities: [Task]
+}
+
+action updateTask {
+  fn: import { updateTask } from "@server/operations.js",
+  entities: [Task]
+}
+entity Task {=psl
+  id  Int @id @default(autoincrement())
+  description String
+  completed Boolean
+psl=}
