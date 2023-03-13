@@ -15,7 +15,7 @@ export const createTask = async ({ description, completed }: createArgs, context
 
 type updateArgs = Pick<Task, 'id' | 'completed'>;
 export const updateTask = async ({ id, completed }: updateArgs, context: Context) => {
-    if (!completed || !id) throw new HttpError(400, 'ID_REQUIRED', 'ID is required')
+    // if (!completed || !id) throw new HttpError(400, 'ID_REQUIRED', 'ID is required')
     return context.entities.Task.update({
         where: { id },
         data: {

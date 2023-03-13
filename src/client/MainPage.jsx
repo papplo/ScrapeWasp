@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import 'dracula-ui/styles/dracula-ui.css'
 import { Paragraph, Input, Button, OrderedList } from 'dracula-ui'
-
+import {Task} from './components/Task'
 import getTasks from '@wasp/queries/getTasks'
 import createTask from '@wasp/actions/createTask'
 import updateTask from '@wasp/actions/updateTask'
@@ -33,13 +33,13 @@ const MainPage = () => {
       {tasksError && <div>Error: {tasksError}</div>}
       <OrderedList color="purple" >
         {tasks && tasks.map((task) => (
-          <li className="drac-text drac-text-white drac-p-xxs" key={task.id}>{task.description}</li>
+          <Task {...{updateTask, task}} />        
         ))}
       </OrderedList>
       <aside>
         <form>
           <Input type="text" placeholder="Task description" value={state} color='white' onChange={(e) => setState(e.target.value)} />
-          <Button  color="purple" type="submit" onClick={handleCreateTask}>Create Task</Button>;
+          <Button disabled={!state}  color="purple" type="submit" onClick={handleCreateTask}>Create Task</Button>;
         </form>
       </aside>
     </main>
