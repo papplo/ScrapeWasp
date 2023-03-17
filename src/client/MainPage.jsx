@@ -1,9 +1,11 @@
 
 import React, { useState } from 'react'
 import 'dracula-ui/styles/dracula-ui.css'
-import { Paragraph, Input, Button, OrderedList } from 'dracula-ui'
+import { Paragraph, Input, Button, OrderedList, Select } from 'dracula-ui'
 import {Task} from './components/Task'
 import getTasks from '@wasp/queries/getTasks'
+import getTypes from '@wasp/queries/getTypes'
+import performTask from '@wasp/actions/performTask'
 import createTask from '@wasp/actions/createTask'
 import updateTask from '@wasp/actions/updateTask'
 import { useQuery } from '@wasp/queries'
@@ -12,9 +14,9 @@ import './Main.css'
 
 const MainPage = () => {
   const { data: tasks, error: tasksError, isLoading: tasksIsLoading } = useQuery(getTasks, null)
-
-  console.log(tasksError)
+  const { data: types, error: typesError, isLoading: typesIsLoading } = useQuery(getTypes, null)
   const [state, setState] = useState("");
+
   function handleCreateTask(e) {
     e.preventDefault()
     if (state === "") return
@@ -25,21 +27,41 @@ const MainPage = () => {
     });
   };
 
+  const draculaColors = [
+    "cyan" , "green" , "orange" , "pink" , "purple" , "red" , "yellow"
+  ]
+
   return (
     <main className='layout-root drac-bg-black'>
-      <Paragraph color="black">Hello Vampire</Paragraph>
-      <h1 className="drac-heading drac-heading-2xl drac-text-white">h1</h1>
+      <Paragraph color="black">Scraping</Paragraph>
+      <h1 className="drac-heading drac-heading-2xl drac-text-white">Tasks</h1>
       {tasksIsLoading && <div>Loading...</div>}
       {tasksError && <div>Error: {tasksError}</div>}
-      <OrderedList color="purple" >
-        {tasks && tasks.map((task) => (
-          <Task {...{updateTask, task}} />        
-        ))}
-      </OrderedList>
+
+      {types && types.map((type, index) => (
+        <OrderedList color="" key={type.id}>
+            <h2 className="drac-heading drac-heading-xl drac-text-white">{type.name}</h2>
+              {tasks && tasks.filter(t => t.type?.name == type.name).map((task) => (
+                <Task {...{updateTask, performTask, task, color: draculaColors[index] }} key={task.id} />
+              ))}
+        </OrderedList>
+      ))}
       <aside>
         <form>
-          <Input type="text" placeholder="Task description" value={state} color='white' onChange={(e) => setState(e.target.value)} />
-          <Button disabled={!state}  color="purple" type="submit" onClick={handleCreateTask}>Create Task</Button>;
+          <Input type="text" placeholder="Task description" value={state.input} color='white' onChange={(e) => setState(e.target.value)} />
+
+          <div style={{ display: 'flex', flexDirection: 'row'}}>
+            <Button disabled={!state}  color="purple" type="submit" onClick={handleCreateTask}>Create Task</Button>
+
+            <Select defaultValue="default" variant="normal" color="white" size="small">
+            <option value="default" disabled={true}>
+              Select option
+            </option>
+              {types && types.map(type => (
+                <option key={type.id}>{type.name}</option>
+              ))}
+            </Select>
+          </div>
         </form>
       </aside>
     </main>

@@ -1,4 +1,5 @@
 import HttpError from '@wasp/core/HttpError.js'
+import { requestGet } from './requests.js';
 import { Context, Task } from './serverTypes';
 
 type createArgs = Pick<Task, 'description' | 'completed'>;
@@ -22,4 +23,26 @@ export const updateTask = async ({ id, completed }: updateArgs, context: Context
             completed: completed,
         },
     });
+}
+
+type performTaskArgs = Pick<Task, 'id'>;
+export const performTask = async ({ id }: performTaskArgs, context: Context) => {
+    if (id === undefined) throw new HttpError(400, 'ID_REQUIRED', 'Id is required')
+
+    const task = await context.entities.Task.findUnique({
+        where: { id },
+        include: {
+            type: true
+        }
+    });
+
+    if (!task || !task?.typeId) {
+        throw new HttpError(404, 'TASK_NOT_FOUND', 'Task not found');
+    }
+
+    const res = requestGet({ search: task?.type?.name || 'happy' });
+
+    return res;
+
+
 }
