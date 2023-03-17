@@ -1,27 +1,50 @@
+import { ClientRequest } from 'http';
 import https from 'https';
+import { parse } from 'node-html-parser';
 
 export const requestGet = async (query: Record<string, string>) => {
-
-    console.log(query)
     const requesturl = `https://happyride.se/annonser/list.php?search=${query.search}`;
-    // 'https://happyride.se/annonser/list.php?search=&category=&county=&creator=&type=
+    const response = await doRequstNoHandling(requesturl);
+    const root = parse(response);
 
-    const response = await https.get(requesturl, (res) =>  {
-        console.log('statusCode:', res.statusCode);
-        console.log('headers:', res.headers);
+    console.log('root', root);
 
-        let data = [] as string[];
+    if (! root) throw new Error('No root element found');
 
-        res.on('data', chunk => {
-            data.push(chunk);
-        });
+    const elements = root.querySelectorAll('.sales-table tr');
+    const parseElementstructure = elements.map(element => {
+        const image = element.querySelector('img')?.getAttribute('src');
+        const title = element.querySelector('.col-2')?.text;
+        const link = element.querySelector('.col-2 a')?.getAttribute('href');
+        const category = element.querySelector('.col-3')?.text;
+        const price = element.querySelector('.col-4')?.text;
+        return { title, price, category, link, image };
+    }).filter(el => Boolean(el?.title));
 
-        res.on('end', () => {
-            const results = JSON.parse(data.join(''));
-            console.log(results);
-        })
-    });
-    return response;
+
+    return parseElementstructure;
 
 }
 
+
+async function doRequstNoHandling(url: string): Promise<string> {
+        return new Promise((resolve, reject) => {
+          const req = https.get(url, (res) => {
+            res.setEncoding('utf8');
+            let responseBody = '';
+
+            res.on('data', (chunk) => {
+              responseBody += chunk;
+            });
+
+            res.on('end', () => {
+              resolve(responseBody);
+            });
+          });
+
+          req.on('error', (err) => {
+            reject(err);
+          });
+          req.end();
+        });
+      }

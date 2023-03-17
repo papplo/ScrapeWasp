@@ -1,19 +1,23 @@
-import { Card, Text, Checkbox } from 'dracula-ui';
+import { Card, Text, Checkbox, Table } from 'dracula-ui';
+import { useState } from 'react';
 
 export const Task = (props) => {
+	const [resTable, setResTable] = useState([]);
     const handleIsDoneChange = async (event) => {
         try {
-				const nn = await props.performTask({id: props.task.id});
-					console.log(nn)
+				const resultsTable = await props.performTask({id: props.task.id});
+				setResTable(resultsTable);
+
             await props.updateTask({
                 id: Number(event.target.id),
-                completed: event.target.checked
+                completed: event.target.checked,
+							description: props.task.description + " - (" + resultsTable.length + ") results"
+
             })
         } catch (error) {
             window.alert('Error while updating task: ' + error.message)
         }
     };
-
 
     return (
     <li className="drac-text drac-text-white drac-p-xxs" key={props.task.id}>
@@ -26,6 +30,40 @@ export const Task = (props) => {
 					{props.task.description}
 				</label>
         </Card>
+		{resTable && resTable.length > 0 && (
+			<ResultsTable results={resTable} />
+		)}
       </li >
     )
   }
+
+	const ResultsTable = (props) => {
+		return (
+			<Table color="cyan">
+				<thead>
+					<tr>
+						<th className="drac-text drac-text-white">Name</th>
+						<th className="drac-text drac-text-white">Age</th>
+						<th className="drac-text drac-text-white" style={{ maxWidth: 200 }}>
+						Bio
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+
+					{props.results.map(({ title, price, image, link, category}) => {(
+						<tr>
+							<td className="drac-text drac-text-white">{title}</td>
+							<td className="drac-text drac-text-white">{price}</td>
+							<td className="drac-text drac-text-white" style={{ maxWidth: 200 }}>
+								{image}
+							</td>
+							<td className="drac-text drac-text-white" style={{ maxWidth: 200 }}>
+								{category}
+							</td>
+					</tr>
+					)})}
+				</tbody>
+			</Table>
+		)
+	}

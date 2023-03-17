@@ -15,12 +15,14 @@ import './Main.css'
 const MainPage = () => {
   const { data: tasks, error: tasksError, isLoading: tasksIsLoading } = useQuery(getTasks, null)
   const { data: types, error: typesError, isLoading: typesIsLoading } = useQuery(getTypes, null)
-  const [state, setState] = useState("");
+  const [state, setState] = useState({ description: "", completed: false, typeId: null });
+
+  console.log(state)
 
   function handleCreateTask(e) {
     e.preventDefault()
     if (state === "") return
-    createTask({ description: state, completed: false }).then(() => {
+    createTask(state).then(() => {
       console.log("Task created!");
       setState("");
       e.target.value = "";
@@ -48,12 +50,12 @@ const MainPage = () => {
       ))}
       <aside>
         <form>
-          <Input type="text" placeholder="Task description" value={state.input} color='white' onChange={(e) => setState(e.target.value)} />
+          <Input type="text" placeholder="Task description" value={state.input} color='white' onChange={(e) => setState(p => ({ ...p, description: e.target.value}))} />
 
           <div style={{ display: 'flex', flexDirection: 'row'}}>
             <Button disabled={!state}  color="purple" type="submit" onClick={handleCreateTask}>Create Task</Button>
 
-            <Select defaultValue="default" variant="normal" color="white" size="small">
+            <Select defaultValue="default" variant="normal" color="white" size="small" onChange={(e) => setState(p => ({ ...p, typeId: e.target.key}))} >
             <option value="default" disabled={true}>
               Select option
             </option>
