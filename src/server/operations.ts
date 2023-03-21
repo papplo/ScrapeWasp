@@ -38,7 +38,7 @@ export const performTask = async ({ id }: performTaskArgs, context: Context) => 
     const task = await context.entities.Task.findUnique({
         where: { id },
         include: {
-            type: true,
+            type: true
         }
     });
 
@@ -60,19 +60,21 @@ export const performTask = async ({ id }: performTaskArgs, context: Context) => 
     const { baseHref, searchPath } = taskType.configuration;
     const res = await requestGet(baseHref, searchPath, task.query);
 
-    const result = await context.entities.Task.update({
+    return await context.entities.Task.update({
         where: { id },
         data: {
             completed: true,
+            runAt: new Date(),
+            runCount: task.runCount + 1,
             results: {
                 createMany: {
                     data: res.map((r) => ({
                             ...r,
-                            runAt: new Date(),
-                            runCount : 1,
                             rawDom: 'not implemented yet',
 
-                    }))
+                    })),
+                    skipDuplicates: true
+
                 }
             }
         },
@@ -80,5 +82,4 @@ export const performTask = async ({ id }: performTaskArgs, context: Context) => 
             results: true,
         }
     });
-    return res;
 }

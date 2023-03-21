@@ -7,13 +7,6 @@ export const Task = (props) => {
         try {
 				const resultsTable = await props.performTask({id: props.task.id});
 				setResTable(resultsTable);
-
-            await props.updateTask({
-                id: Number(event.target.id),
-                completed: event.target.checked,
-				description: props.task.description
-
-            })
         } catch (error) {
             window.alert('Error while updating task: ' + error.message)
         }

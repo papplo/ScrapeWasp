@@ -5,18 +5,20 @@ export const requestGet = async (...args: string[]) => {
     const requestUrl = args.join('');
     const response = await doRequstNoHandling(requestUrl);
     const root = parse(response);
+
     if (! root) throw new Error('No root element found');
 
-    const elements = root.querySelectorAll('.sales-table tr');
+    const elements = root.querySelectorAll('.sales-table tbody tr');
     const parseElementstructure = elements.map(element => {
         const parsedQuery = requestUrl;
+        const foreignId = element.querySelector('.col-1 a')?.getAttribute('href')?.split('.').at(-1)?.slice(0, -1) || "";
         const parsedTitle = element.querySelector('.col-2')?.text || "";
         const parsedPrice = element.querySelector('.col-4')?.text || "";
         const parsedImage = element.querySelector('img')?.getAttribute('src') || "";
         const parsedDescription = element.querySelector('.col-2')?.text || "";
         const parsedLink = element.querySelector('.col-2 a')?.getAttribute('href') || "";
         const parsedCategory = element.querySelector('.col-3')?.text || "";
-        return { parsedQuery, parsedTitle, parsedPrice, parsedImage, parsedDescription, parsedLink, parsedCategory};
+        return { parsedQuery, foreignId, parsedTitle, parsedPrice, parsedImage, parsedDescription, parsedLink, parsedCategory};
     }).filter(el => Boolean(el?.parsedTitle));
 
     return parseElementstructure
