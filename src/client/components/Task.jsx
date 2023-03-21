@@ -11,7 +11,7 @@ export const Task = (props) => {
             await props.updateTask({
                 id: Number(event.target.id),
                 completed: event.target.checked,
-							description: props.task.description + " - (" + resultsTable.length + ") results"
+				description: props.task.description
 
             })
         } catch (error) {
@@ -27,7 +27,7 @@ export const Task = (props) => {
  				onChange={handleIsDoneChange}
 			/>
 				<label htmlFor={props.task.id} className="drac-text drac-text-white">
-					{props.task.description}
+					{props.task.name}
 				</label>
         </Card>
 		{resTable && resTable.length > 0 && (

@@ -6,7 +6,10 @@ app ScrapeWasp {
   dependencies: [
     ("dracula-ui", "1.0.3" ),
     ("node-html-parser", "6.1.5")
-  ]
+  ],
+  db: {
+    system: PostgreSQL,
+  }
 }
 
 route RootRoute { path: "/", to: MainPage }
@@ -20,6 +23,12 @@ query getTasks {
   entities: [Task]
 }
 
+query getTaskById {
+  fn: import { getTaskById } from "@server/queries.js",
+  entities: [Task]
+}
+
+
 action createTask {
   fn: import { createTask } from "@server/operations.js",
   entities: [Task]
@@ -32,7 +41,7 @@ action updateTask {
 
 action performTask {
   fn: import { performTask } from "@server/operations.js",
-  entities: [Task]
+  entities: [Task, TaskType, Result]
 }
 
 /* Task Types */
@@ -53,8 +62,11 @@ psl=}
 
 entity Task {=psl
   id Int                @id @default(autoincrement())
+  query String          @default("")
+  name String           @default("")
   description String
   completed Boolean     @default(false)
+  results Result[]
   user User?            @relation(fields: [userId], references: [id])
     userId Int?
   type TaskType?        @relation(fields: [typeId], references: [id])
@@ -65,15 +77,34 @@ entity TaskType {=psl
   id Int                @id @default(autoincrement())
   name String
   tasks Task[]
-  configuration Configuration[]
+  configuration Configuration @relation(fields: [configurationId], references: [id])
+  configurationId Int
 psl=}
 
-entity  Configuration {=psl
+entity Configuration {=psl
   id Int                @id @default(autoincrement())
   name String
-  value String
-  type TaskType? @relation(fields: [typeId], references: [id])
-  typeId Int?
+  baseHref String
+  categoryPath String
+  searchPath String
+  pagingPath String
+  noResultsPath String
+  type TaskType[]
 psl=}
 
+entity Result {=psl
+  id Int                @id @default(autoincrement())
+  runAt DateTime
+  runCount Int          @default(0)
+  rawDom String
+  parsedQuery String
+  parsedTitle String
+  parsedPrice String
+  parsedDescription String
+  parsedImage String
+  parsedLink String
+  parsedCategory String
+  task Task?            @relation(fields: [taskId], references: [id])
+  taskId Int?
+psl=}
 

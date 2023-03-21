@@ -1,30 +1,32 @@
 
 import React, { useState } from 'react'
-import 'dracula-ui/styles/dracula-ui.css'
+
 import { Paragraph, Input, Button, OrderedList, Select } from 'dracula-ui'
-import {Task} from './components/Task'
+import { Task } from './components/Task'
+
+import { useQuery } from '@wasp/queries'
 import getTasks from '@wasp/queries/getTasks'
 import getTypes from '@wasp/queries/getTypes'
-import performTask from '@wasp/actions/performTask'
-import createTask from '@wasp/actions/createTask'
-import updateTask from '@wasp/actions/updateTask'
-import { useQuery } from '@wasp/queries'
 
+import createTask from '@wasp/actions/createTask'
+import performTask from '@wasp/actions/performTask'
+import updateTask from '@wasp/actions/updateTask'
+
+import 'dracula-ui/styles/dracula-ui.css'
 import './Main.css'
 
 const MainPage = () => {
   const { data: tasks, error: tasksError, isLoading: tasksIsLoading } = useQuery(getTasks, null)
   const { data: types, error: typesError, isLoading: typesIsLoading } = useQuery(getTypes, null)
-  const [state, setState] = useState({ description: "", completed: false, typeId: null });
+  const [state, setState] = useState({ name: "", query: "", description: "", completed: false, typeId: null });
 
-  console.log(state)
 
   function handleCreateTask(e) {
     e.preventDefault()
     if (state === "") return
     createTask(state).then(() => {
       console.log("Task created!");
-      setState("");
+      setState({ name: "", query: "", description: "", completed: false, typeId: null });
       e.target.value = "";
     });
   };
@@ -50,6 +52,8 @@ const MainPage = () => {
       ))}
       <aside>
         <form>
+          <Input type="text" placeholder="Task Query" value={state.input} color='white' onChange={(e) => setState(p => ({ ...p, query: e.target.value}))} />
+          <Input type="text" placeholder="Task name" value={state.input} color='white' onChange={(e) => setState(p => ({ ...p, name: e.target.value}))} />
           <Input type="text" placeholder="Task description" value={state.input} color='white' onChange={(e) => setState(p => ({ ...p, description: e.target.value}))} />
 
           <div style={{ display: 'flex', flexDirection: 'row'}}>

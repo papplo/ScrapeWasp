@@ -1,31 +1,26 @@
-import { ClientRequest } from 'http';
 import https from 'https';
 import { parse } from 'node-html-parser';
 
-export const requestGet = async (query: Record<string, string>) => {
-    const requesturl = `https://happyride.se/annonser/list.php?search=${query.search}`;
-    const response = await doRequstNoHandling(requesturl);
+export const requestGet = async (...args: string[]) => {
+    const requestUrl = args.join('');
+    const response = await doRequstNoHandling(requestUrl);
     const root = parse(response);
-
-    console.log('root', root);
-
     if (! root) throw new Error('No root element found');
 
     const elements = root.querySelectorAll('.sales-table tr');
     const parseElementstructure = elements.map(element => {
-        const image = element.querySelector('img')?.getAttribute('src');
-        const title = element.querySelector('.col-2')?.text;
-        const link = element.querySelector('.col-2 a')?.getAttribute('href');
-        const category = element.querySelector('.col-3')?.text;
-        const price = element.querySelector('.col-4')?.text;
-        return { title, price, category, link, image };
-    }).filter(el => Boolean(el?.title));
+        const parsedQuery = requestUrl;
+        const parsedTitle = element.querySelector('.col-2')?.text || "";
+        const parsedPrice = element.querySelector('.col-4')?.text || "";
+        const parsedImage = element.querySelector('img')?.getAttribute('src') || "";
+        const parsedDescription = element.querySelector('.col-2')?.text || "";
+        const parsedLink = element.querySelector('.col-2 a')?.getAttribute('href') || "";
+        const parsedCategory = element.querySelector('.col-3')?.text || "";
+        return { parsedQuery, parsedTitle, parsedPrice, parsedImage, parsedDescription, parsedLink, parsedCategory};
+    }).filter(el => Boolean(el?.parsedTitle));
 
-
-    return parseElementstructure;
-
+    return parseElementstructure
 }
-
 
 async function doRequstNoHandling(url: string): Promise<string> {
         return new Promise((resolve, reject) => {
