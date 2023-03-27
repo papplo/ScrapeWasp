@@ -25,36 +25,6 @@ const MainPage = () => {
     error: typesError,
     isLoading: typesIsLoading,
   } = useQuery(getTypes, null);
-  const [state, setState] = useState({
-    name: '',
-    query: '',
-    description: '',
-    completed: false,
-    typeId: null,
-  });
-
-  function handleCreateTask(e) {
-    e.preventDefault();
-    console.log(state.typeId);
-    if (state === '') return;
-    createTask(state).then(() => {
-      console.log('Task created!');
-      setState({
-        name: '',
-        query: '',
-        description: '',
-        completed: false,
-        typeId: null,
-      });
-      e.target.value = '';
-    });
-  }
-
-  function handleChangeTaskType(e) {
-    e.preventDefault();
-    console.log(e.target.id);
-  }
-
 
   return (
     <main className='layout-root drac-bg-black'>
@@ -65,62 +35,10 @@ const MainPage = () => {
 
       {types &&
         types.map((type, index) => (
-          <TaskList
-            {...{ type, tasks, updateTask, performTask }}
-            key={type.id}
-          />
+          <TaskList {...{ type, tasks, updateTask, performTask }} key={type.id} />
         ))}
       <aside>
-        <form>
-          <Input
-            type='text'
-            placeholder='Task Query'
-            value={state.input}
-            color='white'
-            onChange={e => setState(p => ({ ...p, query: e.target.value }))}
-          />
-          <Input
-            type='text'
-            placeholder='Task name'
-            value={state.input}
-            color='white'
-            onChange={e => setState(p => ({ ...p, name: e.target.value }))}
-          />
-          <Input
-            type='text'
-            placeholder='Task description'
-            value={state.input}
-            color='white'
-            onChange={e => setState(p => ({ ...p, description: e.target.value }))}
-          />
-
-          <div style={{ display: 'flex', flexDirection: 'row' }}>
-            <Button
-              disabled={!state}
-              color='purple'
-              type='submit'
-              onClick={handleCreateTask}>
-              Create Task
-            </Button>
-
-            <Select
-              defaultValue='default'
-              variant='normal'
-              color='white'
-              size='small'
-              onChange={handleChangeTaskType}>
-              <option value='default' disabled={true}>
-                Select option
-              </option>
-              {types &&
-                types.map(type => (
-                  <option key={type.id} id={type.id}>
-                    {type.name}
-                  </option>
-                ))}
-            </Select>
-          </div>
-        </form>
+        <CreateTaskForm {...{ types }} />
       </aside>
     </main>
   );
@@ -147,7 +65,7 @@ function TaskList({ type, tasks, updateTask, performTask }) {
   );
 }
 
-function CreateTaskForm() {
+function CreateTaskForm(props) {
   const [state, setState] = useState({
     name: '',
     query: '',
@@ -156,11 +74,11 @@ function CreateTaskForm() {
     typeId: null,
   });
 
-  function handleCreateTask(e) {
+  async function handleCreateTask(e) {
     e.preventDefault();
     console.log(state.typeId);
     if (state === '') return;
-    createTask(state).then(() => {
+    await createTask(state).then(() => {
       console.log('Task created!');
       setState({
         name: '',
@@ -171,11 +89,6 @@ function CreateTaskForm() {
       });
       e.target.value = '';
     });
-  }
-
-  function handleChangeTaskType(e) {
-    e.preventDefault();
-    console.log(e.target.id);
   }
 
   return (
@@ -203,7 +116,7 @@ function CreateTaskForm() {
       />
 
       <div style={{ display: 'flex', flexDirection: 'row' }}>
-        <Button disabled={!state} color='purple' type='submit' onClick={handleCreateTask}>
+        <Button disabled={!state.query || !state.typeId} color='purple' type='submit' onClick={handleCreateTask}>
           Create Task
         </Button>
 
@@ -212,13 +125,13 @@ function CreateTaskForm() {
           variant='normal'
           color='white'
           size='small'
-          onChange={handleChangeTaskType}>
+          onChange={e => setState(p => ({ ...p, typeId: parseInt(e.target.value) }))}>
           <option value='default' disabled={true}>
             Select option
           </option>
-          {types &&
-            types.map(type => (
-              <option key={type.id} id={type.id}>
+          {props.types &&
+            props.types.map(type => (
+              <option key={type.id} value={type.id}>
                 {type.name}
               </option>
             ))}

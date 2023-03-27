@@ -3,19 +3,22 @@ import { requestGet } from './requests.js'
 import { Context, Task } from './serverTypes'
 
 type createArgs = Pick<Task, 'description' | 'name' | 'query' | 'completed' | 'typeId'>
-export const createTask = async (
-  { query, name, description, completed, typeId }: createArgs,
-  context: Context,
-) => {
-  if (query === '')
-    throw new HttpError(400, 'DESCRIPTION_REQUIRED', 'Description is required')
+export const createTask = async ({ query, name, description, completed, typeId }: createArgs, context: Context) => {
+  if (query === '') throw new HttpError(400, 'QUERY_REQUIRED', 'query is required')
+  if (typeId === null) throw new HttpError(400, 'TYPEID_REQUIRED', 'type id is required');
+
   return context.entities.Task.create({
     data: {
       query: query,
       name: name,
       description: description,
       completed: completed,
-      typeId: typeId,
+      type: {
+        connect: {
+          id: typeId
+        }
+      }
+
     },
   })
 }

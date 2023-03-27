@@ -1,8 +1,8 @@
 import https from 'https';
 import { parse } from 'node-html-parser';
 
-export const requestGet = async (...args: string[]) => {
-    const requestUrl = args.join('');
+export const requestGet = async (baseHref: string, searchPath: string, query: string) => {
+    const requestUrl = [baseHref, searchPath, query].join('');
     const response = await doRequstNoHandling(requestUrl);
     const root = parse(response);
 
@@ -12,14 +12,15 @@ export const requestGet = async (...args: string[]) => {
     const parseElementstructure = elements.map(element => {
         const parsedQuery = requestUrl;
         const foreignId = element.querySelector('.col-1 a')?.getAttribute('href')?.split('.').at(-1)?.slice(0, -1) || "";
-        const parsedTitle = element.querySelector('.col-2')?.text || "";
-        const parsedPrice = element.querySelector('.col-4')?.text || "";
-        const parsedImage = element.querySelector('img')?.getAttribute('src') || "";
+        const parsedTitle = element.querySelector('.col-2')?.text.split(',').at(0) || "";
+        const parsedPrice = element.querySelector('.col-4')?.text.replace(/[^0-9]/g, '') || "";
+        const parsedImage = baseHref.concat(element.querySelector('img')?.getAttribute('src') || "");
         const parsedDescription = element.querySelector('.col-2')?.text || "";
-        const parsedLink = element.querySelector('.col-2 a')?.getAttribute('href') || "";
+        const parsedLink = baseHref.concat(element.querySelector('.col-2 a')?.getAttribute('href') || "");
         const parsedCategory = element.querySelector('.col-3')?.text || "";
         return { parsedQuery, foreignId, parsedTitle, parsedPrice, parsedImage, parsedDescription, parsedLink, parsedCategory};
-    }).filter(el => Boolean(el?.parsedTitle));
+    })
+      .filter(el => Boolean(el?.parsedTitle))
 
     return parseElementstructure
 }

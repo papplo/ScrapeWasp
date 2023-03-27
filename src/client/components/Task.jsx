@@ -42,23 +42,25 @@ const ResultsTable = props => {
     <Table color='cyan'>
       <thead>
         <tr>
-          <th className='drac-text drac-text-white'>Name</th>
-          <th className='drac-text drac-text-white'>Age</th>
+          <th className='drac-text drac-text-white'>Result title</th>
+          <th className='drac-text drac-text-white'>Price</th>
           <th className='drac-text drac-text-white' style={{ maxWidth: 200 }}>
-            Bio
+            Image
+          </th>
+          <th>
+            Category
           </th>
         </tr>
       </thead>
       <tbody>
         {props.results.map(
-          ({ parsedTitle, parsedPrice, parsedLink, parsedCategory, parsedImage }) => {
-            console.log(parsedTitle)
+          ({ parsedTitle, parsedPrice, parsedLink, parsedCategory, parsedImage, parsedQuery }) => {
             return (
               <tr>
-                <td className='drac-text drac-text-white'>{parsedTitle}</td>
+                <td className='drac-text drac-text-white'><a className='drac-text-grey-secondary' href={parsedLink}>{parsedTitle}</a></td>
                 <td className='drac-text drac-text-white'>{parsedPrice}</td>
-                <td className='drac-text drac-text-white' style={{ maxWidth: 200 }}>
-                  {parsedImage}
+                <td className='drac-text drac-text-white' style={{ maxWidth: 200, overflow: 'hidden' }}>
+                  {/* <img src={parsedImage} /> */}
                 </td>
                 <td className='drac-text drac-text-white' style={{ maxWidth: 200 }}>
                   {parsedCategory}
